@@ -17,14 +17,22 @@ import {
   type AwardItem,
   type LanguageItem,
 } from "@/lib/types/resume";
+import { applyTemplateDefaults } from "@/lib/data/templates";
+import { buildResumeExample } from "@/lib/data/resume-examples";
 
 interface ResumeStore {
   resumes: ResumeDocument[];
   activeResumeId: string | null;
   jobDescription: string;
+  _hasHydrated: boolean;
+  setHasHydrated: (v: boolean) => void;
 
   getActiveResume: () => ResumeDocument | null;
   createResume: (title?: string, sample?: boolean) => string;
+  createResumeFromTemplate: (
+    templateId: TemplateId,
+    options?: { exampleId?: string; empty?: boolean }
+  ) => string;
   duplicateResume: (id: string) => string;
   deleteResume: (id: string) => void;
   setActiveResume: (id: string) => void;
@@ -79,6 +87,8 @@ export const useResumeStore = create<ResumeStore>()(
       resumes: [],
       activeResumeId: null,
       jobDescription: "",
+      _hasHydrated: false,
+      setHasHydrated: (v) => set({ _hasHydrated: v }),
 
       getActiveResume: () => {
         const { resumes, activeResumeId } = get();
@@ -87,6 +97,27 @@ export const useResumeStore = create<ResumeStore>()(
 
       createResume: (title, sample) => {
         const resume = sample ? createSampleResume() : createEmptyResume(title);
+        set((s) => ({
+          resumes: [...s.resumes, resume],
+          activeResumeId: resume.id,
+        }));
+        return resume.id;
+      },
+
+      createResumeFromTemplate: (templateId, options) => {
+        let resume: ResumeDocument;
+        if (options?.exampleId) {
+          const built = buildResumeExample(options.exampleId);
+          resume = built ?? createEmptyResume();
+        } else if (options?.empty !== false) {
+          resume = createEmptyResume();
+        } else {
+          resume = createSampleResume();
+        }
+        resume.templateId = templateId;
+        resume.style = applyTemplateDefaults(templateId, resume.style);
+        resume.id = crypto.randomUUID();
+        resume.updatedAt = new Date().toISOString();
         set((s) => ({
           resumes: [...s.resumes, resume],
           activeResumeId: resume.id,
@@ -130,7 +161,11 @@ export const useResumeStore = create<ResumeStore>()(
 
       setTemplate: (id, templateId) =>
         set((s) => ({
-          resumes: patchResume(s.resumes, id, (r) => ({ ...r, templateId })),
+          resumes: patchResume(s.resumes, id, (r) => ({
+            ...r,
+            templateId,
+            style: applyTemplateDefaults(templateId, r.style),
+          })),
         })),
 
       setStyle: (id, style) =>
@@ -420,6 +455,11 @@ export const useResumeStore = create<ResumeStore>()(
           activeResumeId: data.id,
         })),
     }),
-    { name: "resume-builder-storage" }
+    {
+      name: "resume-builder-storage",
+      onRehydrateStorage: () => (state) => {
+        state?.setHasHydrated(true);
+      },
+    }
   )
 );

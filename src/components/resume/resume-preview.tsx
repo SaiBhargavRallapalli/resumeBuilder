@@ -1,6 +1,7 @@
 "use client";
 
 import type { ResumeDocument } from "@/lib/types/resume";
+import { getTemplateLayout } from "@/lib/data/templates";
 import { cn } from "@/lib/utils/cn";
 
 const FONT_MAP = {
@@ -43,6 +44,7 @@ export function ResumePreview({
   scale = 1,
 }: ResumePreviewProps) {
   const { sections, visibility, style, templateId } = resume;
+  const layout = getTemplateLayout(templateId);
   const { contact } = sections;
   const color = style.primaryColor;
 
@@ -66,14 +68,14 @@ export function ResumePreview({
     <header className="mb-4">
       <h1
         className="text-2xl font-bold tracking-tight"
-        style={{ color: templateId === "executive" ? "#fff" : color }}
+        style={{ color: layout === "executive" ? "#fff" : color }}
       >
         {contact.fullName || "Your Name"}
       </h1>
       {contact.jobTitle && (
         <p
           className="mt-1 text-sm font-medium opacity-90"
-          style={{ color: templateId === "executive" ? "#e2e8f0" : undefined }}
+          style={{ color: layout === "executive" ? "#e2e8f0" : undefined }}
         >
           {contact.jobTitle}
         </p>
@@ -81,7 +83,7 @@ export function ResumePreview({
       <div
         className={cn(
           "mt-2 flex flex-wrap gap-x-3 gap-y-1 text-[10px]",
-          templateId === "executive" ? "text-slate-200" : "text-gray-600"
+          layout === "executive" ? "text-slate-200" : "text-gray-600"
         )}
       >
         {contact.email && <span>{contact.email}</span>}
@@ -271,8 +273,49 @@ export function ResumePreview({
     </>
   );
 
+  const ExperienceTimeline = () =>
+    visibility.experience && sections.experience.length > 0 ? (
+      <section className="mb-4">
+        <SectionTitle>Experience</SectionTitle>
+        <div className="space-y-4">
+          {sections.experience.map((exp) => (
+            <div
+              key={exp.id}
+              className="relative border-l-2 pl-4"
+              style={{ borderColor: `${color}66` }}
+            >
+              <div
+                className="absolute -left-[5px] top-1 h-2 w-2 rounded-full"
+                style={{ backgroundColor: color }}
+              />
+              <div className="flex justify-between gap-2">
+                <div>
+                  <p className="font-semibold">{exp.position || "Position"}</p>
+                  <p className="text-gray-700">
+                    {exp.company}
+                    {exp.location ? ` · ${exp.location}` : ""}
+                  </p>
+                </div>
+                <p className="shrink-0 text-gray-600">
+                  {formatDate(exp.startDate)} –{" "}
+                  {exp.current ? "Present" : formatDate(exp.endDate)}
+                </p>
+              </div>
+              {exp.bullets.filter(Boolean).length > 0 && (
+                <ul className="mt-1 list-disc space-y-0.5 pl-4">
+                  {exp.bullets.filter(Boolean).map((b, i) => (
+                    <li key={i}>{b}</li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          ))}
+        </div>
+      </section>
+    ) : null;
+
   const renderTemplate = () => {
-    switch (templateId) {
+    switch (layout) {
       case "executive":
         return (
           <div className={baseClass}>
@@ -287,7 +330,6 @@ export function ResumePreview({
         );
 
       case "double-column":
-      case "creative":
         return (
           <div className={cn(baseClass, "grid grid-cols-[1fr_2fr] gap-6", padding)}>
             <aside className="space-y-4 border-r pr-4" style={{ borderColor: `${color}33` }}>
@@ -344,6 +386,76 @@ export function ResumePreview({
               </p>
             </header>
             {mainContent}
+            <Skills />
+          </div>
+        );
+
+      case "timeline":
+        return (
+          <div className={cn(baseClass, padding)}>
+            <Header />
+            <Summary />
+            <ExperienceTimeline />
+            <Education />
+            <Skills />
+            <Projects />
+            <Certifications />
+            <Awards />
+            <Languages />
+          </div>
+        );
+
+      case "professional":
+      case "polished":
+        return (
+          <div className={cn(baseClass, padding)}>
+            <Header />
+            <Summary />
+            {visibility.experience && sections.experience.length > 0 && (
+            <section className="mb-4">
+              <h2
+                className="mb-2 text-xs font-bold uppercase tracking-widest"
+                style={{ color }}
+              >
+                Professional Experience
+              </h2>
+              {sections.experience.map((exp) => (
+                <div key={exp.id} className="mb-3 border-b border-gray-100 pb-2 last:border-0">
+                  <div className="flex justify-between gap-2">
+                    <p className="font-semibold">{exp.position}</p>
+                    <p className="shrink-0 text-gray-600 text-[10px]">
+                      {formatDate(exp.startDate)} –{" "}
+                      {exp.current ? "Present" : formatDate(exp.endDate)}
+                    </p>
+                  </div>
+                  <p className="text-gray-700">{exp.company}</p>
+                  {exp.bullets.filter(Boolean).length > 0 && (
+                    <ul className="mt-1 list-disc pl-4">
+                      {exp.bullets.filter(Boolean).map((b, i) => (
+                        <li key={i}>{b}</li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
+              ))}
+            </section>
+            )}
+            <Education />
+            <Skills />
+            <Projects />
+            <Certifications />
+            <Awards />
+            <Languages />
+          </div>
+        );
+
+      case "compact":
+        return (
+          <div className={cn(baseClass, padding)}>
+            <Header />
+            <Summary />
+            <Experience />
+            <Education />
             <Skills />
           </div>
         );

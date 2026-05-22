@@ -114,9 +114,15 @@ export function analyzeATS(
     tip: "List 8–15 relevant skills matching the job description.",
   });
 
-  const atsTemplate = ["classic", "minimal", "professional", "compact"].includes(
-    templateId
-  );
+  const atsTemplate = [
+    "classic",
+    "minimal",
+    "professional",
+    "compact",
+    "single-column",
+    "ivy-league",
+    "polished",
+  ].includes(templateId);
   checks.push({
     id: "template",
     label: "ATS-friendly template selected",

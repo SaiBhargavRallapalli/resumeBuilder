@@ -120,7 +120,7 @@ export default function HomePage() {
             </p>
             <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
               <Button size="lg" className="h-12 px-8 text-base" asChild>
-                <Link href="/builder?new=1&sample=1">
+                <Link href="/builder/new">
                   <FileText className="mr-2 h-5 w-5" />
                   Build Your Resume Free
                 </Link>
@@ -138,7 +138,7 @@ export default function HomePage() {
                 4.9/5 user rating
               </span>
               <span>·</span>
-              <span>8 ATS-optimized templates</span>
+              <span>14 ATS-optimized templates</span>
               <span>·</span>
               <span>100% free PDF export</span>
             </div>
@@ -199,7 +199,7 @@ export default function HomePage() {
           </div>
           <div className="mt-10 text-center">
             <Button size="lg" asChild>
-              <Link href="/builder?new=1">Start Building Now</Link>
+              <Link href="/builder/new">Start Building Now</Link>
             </Button>
           </div>
         </div>
@@ -219,7 +219,7 @@ export default function HomePage() {
             </Button>
           </div>
           <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-            {TEMPLATES.slice(0, 4).map((t) => (
+            {TEMPLATES.filter((t) => t.popular).map((t) => (
               <TemplateCard key={t.id} template={t} />
             ))}
           </div>
@@ -238,7 +238,7 @@ export default function HomePage() {
             className="mt-8 h-12 bg-white text-primary hover:bg-white/90"
             asChild
           >
-            <Link href="/builder?new=1">Create My Resume — It&apos;s Free</Link>
+            <Link href="/builder/new">Create My Resume — It&apos;s Free</Link>
           </Button>
         </div>
       </section>

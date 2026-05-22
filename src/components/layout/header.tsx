@@ -9,6 +9,7 @@ import { cn } from "@/lib/utils/cn";
 
 const NAV = [
   { href: "/templates", label: "Templates" },
+  { href: "/examples", label: "Examples" },
   { href: "/builder", label: "Builder" },
   { href: "/#features", label: "Features" },
   { href: "/#faq", label: "FAQ" },
@@ -46,11 +47,11 @@ export function Header() {
         </nav>
 
         <div className="hidden items-center gap-3 md:flex">
-          <Button variant="ghost" asChild>
-            <Link href="/builder">Sign in</Link>
+          <Button variant="outline" asChild>
+            <Link href="/builder">My Resumes</Link>
           </Button>
           <Button asChild>
-            <Link href="/builder?new=1">Build Resume Free</Link>
+            <Link href="/builder/new">Build Resume Free</Link>
           </Button>
         </div>
 
@@ -77,7 +78,7 @@ export function Header() {
             </Link>
           ))}
           <Button className="mt-4 w-full" asChild>
-            <Link href="/builder?new=1">Build Resume Free</Link>
+            <Link href="/builder/new">Build Resume Free</Link>
           </Button>
         </div>
       )}

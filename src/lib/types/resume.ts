@@ -78,7 +78,13 @@ export type TemplateId =
   | "double-column"
   | "executive"
   | "compact"
-  | "creative";
+  | "creative"
+  | "single-column"
+  | "ivy-league"
+  | "polished"
+  | "contemporary"
+  | "elegant"
+  | "timeline";
 
 export type TemplateCategory =
   | "ats"
@@ -95,6 +101,9 @@ export interface TemplateMeta {
   atsScore: number;
   supportsPhoto: boolean;
   columns: 1 | 2;
+  recommendedFor?: string[];
+  tags?: string[];
+  popular?: boolean;
 }
 
 export interface ResumeStyle {

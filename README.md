@@ -6,7 +6,7 @@ Inspired by best-in-class tools ([ResumeGemini](https://resumegemini.com), [Enha
 
 ## Features
 
-- **8 professional templates** — Classic, Minimal, Modern, Double Column, Executive, and more
+- **14 professional templates** — Classic, Ivy League, Minimal, Modern, Double Column, Timeline, Executive, and more
 - **Real-time ATS score** — Live checklist + keyword matching from job descriptions
 - **AI assistant** — Generate summaries, enhance bullets with metrics and action verbs
 - **Live preview** — See changes instantly as you type

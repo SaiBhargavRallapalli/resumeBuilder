@@ -20,6 +20,7 @@ export function Footer() {
             <ul className="mt-3 space-y-2 text-sm text-muted-foreground">
               <li><Link href="/builder" className="hover:text-foreground">Resume Builder</Link></li>
               <li><Link href="/templates" className="hover:text-foreground">Templates</Link></li>
+              <li><Link href="/examples" className="hover:text-foreground">Examples</Link></li>
               <li><Link href="/builder" className="hover:text-foreground">ATS Checker</Link></li>
             </ul>
           </div>

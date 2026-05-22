@@ -15,6 +15,7 @@ const COLORS = [
   "#0891b2",
   "#ca8a04",
   "#1e293b",
+  "#7f1d1d",
 ];
 
 interface StylePanelProps {
@@ -30,6 +31,22 @@ export function StylePanel({ resume }: StylePanelProps) {
 
   return (
     <div className="space-y-8">
+      <div>
+        <Label className="mb-3 block">Template ({TEMPLATES.length} available)</Label>
+        <div className="grid max-h-[420px] gap-3 overflow-y-auto pr-1 sm:grid-cols-2">
+          {TEMPLATES.map((t) => (
+            <TemplateCard
+              key={t.id}
+              template={t}
+              compact
+              showLink={false}
+              selected={resume.templateId === t.id}
+              onSelect={(id) => setTemplate(resume.id, id)}
+            />
+          ))}
+        </div>
+      </div>
+
       <div>
         <Label className="mb-3 block">Accent color</Label>
         <div className="flex flex-wrap gap-2">
@@ -103,21 +120,6 @@ export function StylePanel({ resume }: StylePanelProps) {
             >
               {m}
             </button>
-          ))}
-        </div>
-      </div>
-
-      <div>
-        <Label className="mb-3 block">Template</Label>
-        <div className="grid gap-3 sm:grid-cols-2">
-          {TEMPLATES.slice(0, 4).map((t) => (
-            <TemplateCard
-              key={t.id}
-              template={t}
-              compact
-              selected={resume.templateId === t.id}
-              onSelect={(id) => setTemplate(resume.id, id)}
-            />
           ))}
         </div>
       </div>

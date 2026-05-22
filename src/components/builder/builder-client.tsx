@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useSearchParams } from "next/navigation";
+import { useEffect, useState, useRef } from "react";
+import { useSearchParams, useRouter } from "next/navigation";
 import { useResumeStore } from "@/lib/store/resume-store";
 import { ResumePreview } from "@/components/resume/resume-preview";
 import { ResumeEditor } from "@/components/builder/resume-editor";
@@ -21,18 +21,23 @@ import {
   Palette,
   Pencil,
   ChevronLeft,
+  LayoutTemplate,
 } from "lucide-react";
 import Link from "next/link";
 import { analyzeATS } from "@/lib/ats/analyzer";
 
 export function BuilderClient() {
   const searchParams = useSearchParams();
+  const router = useRouter();
+  const initialized = useRef(false);
   const {
     resumes,
     activeResumeId,
     jobDescription,
+    _hasHydrated,
+    setHasHydrated,
     getActiveResume,
-    createResume,
+    createResumeFromTemplate,
     setActiveResume,
     setTemplate,
     updateResume,
@@ -41,60 +46,86 @@ export function BuilderClient() {
 
   const [sidePanel, setSidePanel] = useState<"edit" | "style" | "ats">("edit");
   const [downloading, setDownloading] = useState(false);
-  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    setMounted(true);
-  }, []);
+    const unsub = useResumeStore.persist.onFinishHydration(() => {
+      setHasHydrated(true);
+    });
+    if (useResumeStore.persist.hasHydrated()) {
+      setHasHydrated(true);
+    }
+    return unsub;
+  }, [setHasHydrated]);
 
   useEffect(() => {
-    if (!mounted) return;
+    if (!_hasHydrated || initialized.current) return;
 
-    const isNew = searchParams.get("new");
-    const sample = searchParams.get("sample");
     const template = searchParams.get("template") as TemplateId | null;
+    const exampleId = searchParams.get("example");
+    const isNew = searchParams.get("new") === "1";
 
-    if (isNew && resumes.length === 0) {
-      const id = createResume(undefined, sample === "1");
-      if (template) setTemplate(id, template);
-    } else if (isNew && activeResumeId === null && resumes.length > 0) {
-      const id = createResume(undefined, sample === "1");
-      if (template) setTemplate(id, template);
-    } else if (template && activeResumeId) {
-      setTemplate(activeResumeId, template);
-    } else if (resumes.length === 0) {
-      createResume(undefined, true);
-    } else if (!activeResumeId && resumes.length > 0) {
+    if (isNew && template) {
+      initialized.current = true;
+      createResumeFromTemplate(template, {
+        exampleId: exampleId ?? undefined,
+        empty: !exampleId,
+      });
+      router.replace("/builder");
+      return;
+    }
+
+    if (resumes.length === 0) {
+      initialized.current = true;
+      router.replace("/builder/new");
+      return;
+    }
+
+    if (!activeResumeId && resumes.length > 0) {
       setActiveResume(resumes[0].id);
     }
+
+    if (template && activeResumeId) {
+      setTemplate(activeResumeId, template);
+    }
+
+    initialized.current = true;
   }, [
-    mounted,
+    _hasHydrated,
     searchParams,
     resumes.length,
     activeResumeId,
-    createResume,
+    createResumeFromTemplate,
     setActiveResume,
     setTemplate,
+    router,
   ]);
 
   const resume = getActiveResume();
 
-  if (!mounted) {
+  if (!_hasHydrated) {
     return (
       <div className="flex h-[calc(100vh-4rem)] items-center justify-center">
-        <p className="text-muted-foreground">Loading...</p>
+        <p className="text-muted-foreground">Loading your resumes...</p>
+      </div>
+    );
+  }
+
+  if (!resume && resumes.length === 0) {
+    return (
+      <div className="flex h-[calc(100vh-4rem)] flex-col items-center justify-center gap-4">
+        <LayoutTemplate className="h-12 w-12 text-muted-foreground" />
+        <p className="text-muted-foreground">Choose a template to get started</p>
+        <Button asChild>
+          <Link href="/builder/new">Browse templates</Link>
+        </Button>
       </div>
     );
   }
 
   if (!resume) {
     return (
-      <div className="flex h-[calc(100vh-4rem)] flex-col items-center justify-center gap-4">
-        <p className="text-muted-foreground">No resume selected</p>
-        <Button onClick={() => createResume(undefined, true)}>
-          <Plus className="mr-2 h-4 w-4" />
-          Create new resume
-        </Button>
+      <div className="flex h-[calc(100vh-4rem)] items-center justify-center">
+        <p className="text-muted-foreground">Loading...</p>
       </div>
     );
   }
@@ -109,7 +140,7 @@ export function BuilderClient() {
       await downloadResumePDF("resume-preview", `${name}_resume.pdf`);
     } catch (e) {
       console.error(e);
-      alert("Download failed. Try print instead.");
+      alert("Download failed. Try Print instead (Ctrl/Cmd+P).");
     } finally {
       setDownloading(false);
     }
@@ -154,6 +185,7 @@ export function BuilderClient() {
               className="rounded border px-2 py-1 text-sm"
               value={activeResumeId ?? ""}
               onChange={(e) => setActiveResume(e.target.value)}
+              aria-label="Select resume"
             >
               {resumes.map((r) => (
                 <option key={r.id} value={r.id}>
@@ -164,7 +196,7 @@ export function BuilderClient() {
           )}
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center justify-end gap-2">
           <div
             className="hidden items-center gap-2 rounded-full border px-3 py-1 text-sm sm:flex"
             title="ATS Score"
@@ -172,7 +204,17 @@ export function BuilderClient() {
             <Shield className="h-4 w-4 text-primary" />
             <span className="font-medium">{analysis.score}% ATS</span>
           </div>
-          <Button size="sm" variant="outline" onClick={() => createResume()}>
+          <Button size="sm" variant="outline" asChild>
+            <Link href="/builder/new">
+              <LayoutTemplate className="mr-1 h-3 w-3" />
+              Templates
+            </Link>
+          </Button>
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => router.push("/builder/new")}
+          >
             <Plus className="mr-1 h-3 w-3" />
             New
           </Button>
@@ -228,12 +270,12 @@ export function BuilderClient() {
           <div className="flex-1 overflow-hidden">
             {sidePanel === "edit" && <ResumeEditor resume={resume} />}
             {sidePanel === "style" && (
-              <div className="overflow-y-auto p-4">
+              <div className="h-full overflow-y-auto p-4">
                 <StylePanel resume={resume} />
               </div>
             )}
             {sidePanel === "ats" && (
-              <div className="overflow-y-auto p-4">
+              <div className="h-full overflow-y-auto p-4">
                 <ATSPanel resume={resume} />
               </div>
             )}
@@ -248,14 +290,14 @@ export function BuilderClient() {
           </div>
         </div>
 
-        <div className="fixed bottom-0 left-0 right-0 border-t bg-background p-2 lg:hidden">
-          <Tabs defaultValue="preview">
+        <div className="fixed bottom-0 left-0 right-0 z-10 border-t bg-background p-2 lg:hidden">
+          <Tabs defaultValue="edit">
             <TabsList className="grid w-full grid-cols-2">
               <TabsTrigger value="edit">Edit</TabsTrigger>
               <TabsTrigger value="preview">Preview</TabsTrigger>
             </TabsList>
-            <TabsContent value="preview" className="max-h-[50vh] overflow-auto p-2">
-              <ResumePreview resume={resume} scale={0.45} />
+            <TabsContent value="preview" className="max-h-[45vh] overflow-auto p-2">
+              <ResumePreview resume={resume} scale={0.4} />
             </TabsContent>
           </Tabs>
         </div>

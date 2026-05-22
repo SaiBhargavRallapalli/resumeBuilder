@@ -2,36 +2,29 @@
 
 import Link from "next/link";
 import type { TemplateMeta } from "@/lib/types/resume";
+import { getTemplate } from "@/lib/data/templates";
+import { TemplateThumbnail } from "@/components/resume/template-thumbnail";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils/cn";
-import { Shield, Columns2 } from "lucide-react";
+import { Shield, Columns2, Star } from "lucide-react";
 
 interface TemplateCardProps {
   template: TemplateMeta;
   selected?: boolean;
   onSelect?: (id: TemplateMeta["id"]) => void;
   compact?: boolean;
+  showLink?: boolean;
 }
-
-const PREVIEW_STYLES: Record<string, string> = {
-  classic: "bg-white border-2 border-gray-200",
-  minimal: "bg-gray-50 border border-gray-300",
-  professional: "bg-white border-l-4 border-blue-600",
-  modern: "bg-gradient-to-br from-blue-50 to-white",
-  "double-column": "bg-white grid grid-cols-3 gap-0",
-  compact: "bg-white text-[6px]",
-  executive: "bg-blue-700 text-white",
-  creative: "bg-gradient-to-r from-violet-100 to-pink-50",
-};
 
 export function TemplateCard({
   template,
   selected,
   onSelect,
   compact,
+  showLink = true,
 }: TemplateCardProps) {
-  const previewClass = PREVIEW_STYLES[template.id] ?? "bg-white";
+  const full = getTemplate(template.id);
 
   return (
     <div
@@ -41,46 +34,21 @@ export function TemplateCard({
       )}
     >
       <div
-        className={cn(
-          "relative aspect-[3/4] cursor-pointer p-4",
-          previewClass
-        )}
+        className="relative aspect-[3/4] cursor-pointer overflow-hidden bg-slate-50 p-3"
         onClick={() => onSelect?.(template.id)}
         onKeyDown={(e) => e.key === "Enter" && onSelect?.(template.id)}
         role="button"
         tabIndex={0}
       >
-        {template.id === "double-column" && (
-          <>
-            <div className="col-span-1 h-full bg-blue-100/50" />
-            <div className="col-span-2 space-y-1 p-2">
-              <div className="h-2 w-3/4 rounded bg-gray-300" />
-              <div className="h-1 w-full rounded bg-gray-200" />
-              <div className="h-1 w-full rounded bg-gray-200" />
-            </div>
-          </>
-        )}
-        {template.id !== "double-column" && (
-          <div className="space-y-2">
-            <div
-              className={cn(
-                "h-3 rounded",
-                template.id === "executive" ? "bg-white/30" : "bg-gray-300"
-              )}
-            />
-            <div className="h-1.5 w-2/3 rounded bg-gray-200" />
-            <div className="mt-4 space-y-1">
-              <div className="h-1 w-full rounded bg-gray-200" />
-              <div className="h-1 w-full rounded bg-gray-200" />
-              <div className="h-1 w-4/5 rounded bg-gray-200" />
-            </div>
-          </div>
+        <TemplateThumbnail template={full} className="h-full" />
+        {template.popular && (
+          <Badge className="absolute left-2 top-2 gap-0.5 bg-amber-500">
+            <Star className="h-3 w-3" />
+            Popular
+          </Badge>
         )}
         {template.atsScore >= 95 && (
-          <Badge
-            variant="success"
-            className="absolute right-2 top-2 gap-1"
-          >
+          <Badge variant="success" className="absolute right-2 top-2 gap-1">
             <Shield className="h-3 w-3" />
             ATS {template.atsScore}%
           </Badge>
@@ -91,8 +59,13 @@ export function TemplateCard({
           <div>
             <h3 className="font-semibold">{template.name}</h3>
             {!compact && (
-              <p className="mt-1 text-xs text-muted-foreground line-clamp-2">
+              <p className="mt-1 line-clamp-2 text-xs text-muted-foreground">
                 {template.description}
+              </p>
+            )}
+            {!compact && template.recommendedFor && (
+              <p className="mt-2 text-[10px] text-muted-foreground">
+                Best for: {template.recommendedFor.slice(0, 2).join(", ")}
               </p>
             )}
           </div>
@@ -110,9 +83,11 @@ export function TemplateCard({
             >
               {selected ? "Selected" : "Use Template"}
             </Button>
-            <Button size="sm" variant="ghost" asChild>
-              <Link href={`/builder?template=${template.id}`}>Preview</Link>
-            </Button>
+            {showLink && (
+              <Button size="sm" variant="ghost" asChild>
+                <Link href={`/builder/new?template=${template.id}`}>Preview</Link>
+              </Button>
+            )}
           </div>
         )}
       </div>
