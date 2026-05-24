@@ -19,6 +19,7 @@ import {
 } from "@/lib/types/resume";
 import { applyTemplateDefaults, getTemplate } from "@/lib/data/templates";
 import { buildResumeExample } from "@/lib/data/resume-examples";
+import { parseResumeImport } from "@/lib/validation/resume-schema";
 
 interface ResumeStore {
   resumes: ResumeDocument[];
@@ -66,7 +67,7 @@ interface ResumeStore {
   addLanguage: (id: string, item?: Partial<LanguageItem>) => void;
   removeLanguage: (id: string, itemId: string) => void;
 
-  importResume: (data: ResumeDocument) => void;
+  importResume: (data: ResumeDocument) => string | null;
 }
 
 function patchResume(
@@ -450,11 +451,20 @@ export const useResumeStore = create<ResumeStore>()(
           })),
         })),
 
-      importResume: (data) =>
-        set((s) => ({
-          resumes: [...s.resumes, { ...data, updatedAt: new Date().toISOString() }],
-          activeResumeId: data.id,
-        })),
+      importResume: (data) => {
+        try {
+          const validated = parseResumeImport(data) as ResumeDocument;
+          validated.id = crypto.randomUUID();
+          validated.updatedAt = new Date().toISOString();
+          set((s) => ({
+            resumes: [...s.resumes, validated],
+            activeResumeId: validated.id,
+          }));
+          return validated.id;
+        } catch {
+          return null;
+        }
+      },
     }),
     {
       name: "resume-builder-storage",

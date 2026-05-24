@@ -40,6 +40,7 @@ export function BuilderClient() {
 
   const [sidePanel, setSidePanel] = useState<"edit" | "style" | "ats">("edit");
   const [downloading, setDownloading] = useState(false);
+  const [toast, setToast] = useState<string | null>(null);
 
   useEffect(() => {
     const unsub = useResumeStore.persist.onFinishHydration(() => {
@@ -113,10 +114,13 @@ export function BuilderClient() {
     try {
       const name =
         resume.sections.contact.fullName.replace(/\s+/g, "_") || "resume";
-      await downloadResumePDF("resume-preview", `${name}_resume.pdf`);
+      await downloadResumePDF(resume, `${name}_resume.pdf`);
+      setToast("PDF downloaded — text-selectable & ATS-friendly");
+      setTimeout(() => setToast(null), 4000);
     } catch (e) {
       console.error(e);
-      alert("Download failed. Try Print instead (Ctrl/Cmd+P).");
+      setToast("Download failed. Try Print (Ctrl/Cmd+P) instead.");
+      setTimeout(() => setToast(null), 5000);
     } finally {
       setDownloading(false);
     }
@@ -132,9 +136,14 @@ export function BuilderClient() {
       const text = await file.text();
       try {
         const data = JSON.parse(text);
-        importResume(data);
+        const id = importResume(data);
+        if (!id) {
+          setToast("Invalid resume file — check JSON format");
+          setTimeout(() => setToast(null), 5000);
+        }
       } catch {
-        alert("Invalid resume file");
+        setToast("Could not parse JSON file");
+        setTimeout(() => setToast(null), 5000);
       }
     };
     input.click();
@@ -142,6 +151,11 @@ export function BuilderClient() {
 
   return (
     <div className="flex h-[calc(100vh-4rem)] flex-col">
+      {toast && (
+        <div className="fixed bottom-4 left-1/2 z-50 -translate-x-1/2 rounded-lg border bg-background px-4 py-2 text-sm shadow-lg">
+          {toast}
+        </div>
+      )}
       <div className="flex items-center justify-between border-b px-4 py-2">
         <div className="flex items-center gap-3">
           <Button variant="ghost" size="icon" asChild>

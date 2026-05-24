@@ -7,10 +7,8 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import {
-  enhanceBullet,
-  generateSummary,
-} from "@/lib/ats/analyzer";
+import { generateSummary } from "@/lib/ats/analyzer";
+import { callAi } from "@/lib/ai/client";
 import {
   BULLET_SUGGESTIONS,
   SKILL_SUGGESTIONS,
@@ -53,6 +51,7 @@ const SECTIONS: { id: EditorSection; label: string; visibilityKey?: keyof Resume
 
 export function ResumeEditor({ resume }: ResumeEditorProps) {
   const [activeSection, setActiveSection] = useState<EditorSection>("contact");
+  const [aiLoading, setAiLoading] = useState(false);
   const store = useResumeStore();
   const id = resume.id;
   const { sections, visibility } = resume;
@@ -155,16 +154,17 @@ export function ResumeEditor({ resume }: ResumeEditorProps) {
               <Button
                 size="sm"
                 variant="outline"
-                onClick={() => {
+                disabled={aiLoading}
+                onClick={async () => {
+                  setAiLoading(true);
                   const role = sections.contact.jobTitle || "Professional";
-                  store.setSummary(
-                    id,
-                    generateSummary(role, 5)
-                  );
+                  const text = await callAi("generate-summary", { role, years: 5 });
+                  store.setSummary(id, text);
+                  setAiLoading(false);
                 }}
               >
                 <Sparkles className="mr-1 h-3 w-3" />
-                AI Generate
+                {aiLoading ? "Generating..." : "AI Generate"}
               </Button>
             </div>
             <Textarea
@@ -300,13 +300,17 @@ export function ResumeEditor({ resume }: ResumeEditorProps) {
                         size="icon"
                         variant="outline"
                         title="Enhance with AI"
-                        onClick={() => {
+                        disabled={aiLoading}
+                        onClick={async () => {
+                          setAiLoading(true);
+                          const enhanced = await callAi("enhance-bullet", {
+                            text: bullet,
+                            role: sections.contact.jobTitle,
+                          });
                           const bullets = [...exp.bullets];
-                          bullets[bi] = enhanceBullet(
-                            bullet,
-                            sections.contact.jobTitle
-                          );
+                          bullets[bi] = enhanced;
                           store.updateExperience(id, exp.id, { bullets });
+                          setAiLoading(false);
                         }}
                       >
                         <Sparkles className="h-4 w-4" />

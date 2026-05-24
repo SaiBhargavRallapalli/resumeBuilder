@@ -14,6 +14,16 @@ Inspired by best-in-class tools ([ResumeGemini](https://resumegemini.com), [Enha
 - **Multiple resumes** — Saved locally in your browser
 - **Import/Export JSON** — Backup and restore resumes
 
+## Production features
+
+- **Text-based PDF export** — Server-generated, selectable text (ATS-parseable) via `/api/export-pdf`
+- **Zod validation** — Safe JSON import with schema validation
+- **Error boundaries** — App-level and builder-level error recovery
+- **AI API** — `/api/ai` with OpenAI when `OPENAI_API_KEY` is set; local fallback otherwise
+- **CI/CD** — GitHub Actions (lint, build, Playwright smoke tests)
+- **Security headers** — X-Frame-Options, CSP-adjacent headers in `next.config.ts`
+- **Legal pages** — `/privacy` and `/terms`
+
 ## Quick Start
 
 ```bash
