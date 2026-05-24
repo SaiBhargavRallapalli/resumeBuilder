@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
+import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
 import { Header } from "@/components/layout/header";
 import { Footer } from "@/components/layout/footer";
@@ -12,7 +13,7 @@ const inter = Inter({
 export const metadata: Metadata = {
   title: "ResumeCraft — Free ATS Resume Builder",
   description:
-    "Build ATS-friendly resumes in minutes. Professional templates, AI optimization, instant PDF download. No credit card required.",
+    "Build ATS-friendly resumes in minutes. 14 professional templates with sample content, AI optimization, instant PDF download. No account required.",
   keywords: [
     "resume builder",
     "ATS resume",
@@ -20,6 +21,12 @@ export const metadata: Metadata = {
     "CV builder",
     "job application",
   ],
+  openGraph: {
+    title: "ResumeCraft — Free ATS Resume Builder",
+    description:
+      "Build ATS-friendly resumes in minutes. No account required.",
+    type: "website",
+  },
 };
 
 export default function RootLayout({
@@ -33,6 +40,7 @@ export default function RootLayout({
         <Header />
         <main className="min-h-[calc(100vh-8rem)]">{children}</main>
         <Footer />
+        <Analytics />
       </body>
     </html>
   );

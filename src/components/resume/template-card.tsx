@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import type { TemplateMeta } from "@/lib/types/resume";
 import { getTemplate } from "@/lib/data/templates";
 import { TemplateThumbnail } from "@/components/resume/template-thumbnail";
@@ -24,7 +25,17 @@ export function TemplateCard({
   compact,
   showLink = true,
 }: TemplateCardProps) {
+  const router = useRouter();
   const full = getTemplate(template.id);
+  const builderUrl = `/builder/new?template=${template.id}`;
+
+  const handleUse = () => {
+    if (onSelect) {
+      onSelect(template.id);
+    } else {
+      router.push(builderUrl);
+    }
+  };
 
   return (
     <div
@@ -35,8 +46,8 @@ export function TemplateCard({
     >
       <div
         className="relative aspect-[3/4] cursor-pointer overflow-hidden bg-slate-50 p-3"
-        onClick={() => onSelect?.(template.id)}
-        onKeyDown={(e) => e.key === "Enter" && onSelect?.(template.id)}
+        onClick={handleUse}
+        onKeyDown={(e) => e.key === "Enter" && handleUse()}
         role="button"
         tabIndex={0}
       >
@@ -79,13 +90,16 @@ export function TemplateCard({
               size="sm"
               className="flex-1"
               variant={selected ? "default" : "outline"}
-              onClick={() => onSelect?.(template.id)}
+              onClick={(e) => {
+                e.stopPropagation();
+                handleUse();
+              }}
             >
               {selected ? "Selected" : "Use Template"}
             </Button>
             {showLink && (
               <Button size="sm" variant="ghost" asChild>
-                <Link href={`/builder/new?template=${template.id}`}>Preview</Link>
+                <Link href={builderUrl}>Open</Link>
               </Button>
             )}
           </div>

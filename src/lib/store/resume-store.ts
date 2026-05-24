@@ -17,7 +17,7 @@ import {
   type AwardItem,
   type LanguageItem,
 } from "@/lib/types/resume";
-import { applyTemplateDefaults } from "@/lib/data/templates";
+import { applyTemplateDefaults, getTemplate } from "@/lib/data/templates";
 import { buildResumeExample } from "@/lib/data/resume-examples";
 
 interface ResumeStore {
@@ -108,14 +108,15 @@ export const useResumeStore = create<ResumeStore>()(
         let resume: ResumeDocument;
         if (options?.exampleId) {
           const built = buildResumeExample(options.exampleId);
-          resume = built ?? createEmptyResume();
-        } else if (options?.empty !== false) {
+          resume = built ?? createSampleResume();
+        } else if (options?.empty === true) {
           resume = createEmptyResume();
         } else {
           resume = createSampleResume();
         }
         resume.templateId = templateId;
         resume.style = applyTemplateDefaults(templateId, resume.style);
+        resume.title = `${getTemplate(templateId).name} Resume`;
         resume.id = crypto.randomUUID();
         resume.updatedAt = new Date().toISOString();
         set((s) => ({
@@ -457,6 +458,11 @@ export const useResumeStore = create<ResumeStore>()(
     }),
     {
       name: "resume-builder-storage",
+      partialize: (state) => ({
+        resumes: state.resumes,
+        activeResumeId: state.activeResumeId,
+        jobDescription: state.jobDescription,
+      }),
       onRehydrateStorage: () => (state) => {
         state?.setHasHydrated(true);
       },

@@ -30,12 +30,12 @@ export function TemplatePicker({ onSelect, onBlank }: TemplatePickerProps) {
       <div className="text-center">
         <h1 className="text-2xl font-bold sm:text-3xl">Choose your resume template</h1>
         <p className="mt-2 text-muted-foreground">
-          All templates are ATS-tested. Pick a design, then fill in your details.
+          Every template opens with sample content you can edit. No account required.
         </p>
       </div>
 
       <div className="mt-8">
-        <p className="mb-3 text-sm font-medium">Start from an example (optional)</p>
+        <p className="mb-3 text-sm font-medium">Start from a role example (optional)</p>
         <div className="flex flex-wrap gap-2">
           {RESUME_EXAMPLES.map((ex) => (
             <button
@@ -88,10 +88,10 @@ export function TemplatePicker({ onSelect, onBlank }: TemplatePickerProps) {
       <div className="mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row">
         <Button variant="outline" onClick={onBlank}>
           <FileText className="mr-2 h-4 w-4" />
-          Start with blank resume
+          Start blank (no sample data)
         </Button>
         <p className="text-xs text-muted-foreground">
-          No account required · Saves automatically in your browser
+          Saves automatically in your browser
         </p>
       </div>
     </div>
@@ -102,17 +102,18 @@ export function TemplatePickerScreen() {
   const router = useRouter();
   const createResumeFromTemplate = useResumeStore((s) => s.createResumeFromTemplate);
 
+  const goToBuilder = (resumeId: string) => {
+    router.push(`/builder?r=${resumeId}`);
+  };
+
   const handleSelect = (templateId: TemplateId, exampleId?: string) => {
-    createResumeFromTemplate(templateId, {
-      exampleId,
-      empty: !exampleId,
-    });
-    router.replace("/builder");
+    const id = createResumeFromTemplate(templateId, { exampleId });
+    goToBuilder(id);
   };
 
   const handleBlank = () => {
-    createResumeFromTemplate("classic", { empty: true });
-    router.replace("/builder");
+    const id = createResumeFromTemplate("classic", { empty: true });
+    goToBuilder(id);
   };
 
   return <TemplatePicker onSelect={handleSelect} onBlank={handleBlank} />;

@@ -23,6 +23,28 @@ npm run dev
 
 Open [http://localhost:3000](http://localhost:3000)
 
+## Routes
+
+| Route | Description |
+|-------|-------------|
+| `/` | Landing page |
+| `/templates` | Browse 14 ATS-tested templates |
+| `/examples` | Role-based resume examples (SWE, PM, Nurse, etc.) |
+| `/builder/new` | Pick a template (opens with sample data) |
+| `/builder` | Editor with live preview, ATS checker, PDF export |
+
+## Deploy to Vercel
+
+```bash
+npm install -g vercel   # if needed
+vercel                  # preview
+vercel --prod           # production
+```
+
+Set optional env var `NEXT_PUBLIC_APP_URL` to your production domain for sitemap/SEO.
+
+Analytics (`@vercel/analytics`) activates automatically on Vercel — no config needed.
+
 ## Tech Stack
 
 - **Next.js 15** (App Router)
@@ -30,6 +52,7 @@ Open [http://localhost:3000](http://localhost:3000)
 - **Tailwind CSS 4**
 - **Zustand** (persisted state)
 - **html2canvas + jsPDF** (PDF export)
+- **@vercel/analytics** (production metrics)
 
 ## Project Structure
 

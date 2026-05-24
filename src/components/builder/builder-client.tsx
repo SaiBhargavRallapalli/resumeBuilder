@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { useResumeStore } from "@/lib/store/resume-store";
 import { ResumePreview } from "@/components/resume/resume-preview";
@@ -11,7 +11,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { downloadResumePDF, exportResumeJSON } from "@/lib/export/pdf";
-import type { TemplateId } from "@/lib/types/resume";
 import {
   Download,
   FileJson,
@@ -29,20 +28,15 @@ import { analyzeATS } from "@/lib/ats/analyzer";
 export function BuilderClient() {
   const searchParams = useSearchParams();
   const router = useRouter();
-  const initialized = useRef(false);
-  const {
-    resumes,
-    activeResumeId,
-    jobDescription,
-    _hasHydrated,
-    setHasHydrated,
-    getActiveResume,
-    createResumeFromTemplate,
-    setActiveResume,
-    setTemplate,
-    updateResume,
-    importResume,
-  } = useResumeStore();
+  const resumes = useResumeStore((s) => s.resumes);
+  const activeResumeId = useResumeStore((s) => s.activeResumeId);
+  const jobDescription = useResumeStore((s) => s.jobDescription);
+  const _hasHydrated = useResumeStore((s) => s._hasHydrated);
+  const setHasHydrated = useResumeStore((s) => s.setHasHydrated);
+  const getActiveResume = useResumeStore((s) => s.getActiveResume);
+  const setActiveResume = useResumeStore((s) => s.setActiveResume);
+  const updateResume = useResumeStore((s) => s.updateResume);
+  const importResume = useResumeStore((s) => s.importResume);
 
   const [sidePanel, setSidePanel] = useState<"edit" | "style" | "ats">("edit");
   const [downloading, setDownloading] = useState(false);
@@ -58,47 +52,29 @@ export function BuilderClient() {
   }, [setHasHydrated]);
 
   useEffect(() => {
-    if (!_hasHydrated || initialized.current) return;
+    if (!_hasHydrated) return;
 
-    const template = searchParams.get("template") as TemplateId | null;
-    const exampleId = searchParams.get("example");
-    const isNew = searchParams.get("new") === "1";
+    const resumeParam = searchParams.get("r");
+    const { resumes: stored, activeResumeId: activeId } =
+      useResumeStore.getState();
 
-    if (isNew && template) {
-      initialized.current = true;
-      createResumeFromTemplate(template, {
-        exampleId: exampleId ?? undefined,
-        empty: !exampleId,
-      });
+    if (resumeParam && stored.some((r) => r.id === resumeParam)) {
+      if (activeId !== resumeParam) {
+        setActiveResume(resumeParam);
+      }
       router.replace("/builder");
       return;
     }
 
-    if (resumes.length === 0) {
-      initialized.current = true;
+    if (stored.length === 0) {
       router.replace("/builder/new");
       return;
     }
 
-    if (!activeResumeId && resumes.length > 0) {
-      setActiveResume(resumes[0].id);
+    if (!activeId && stored.length > 0) {
+      setActiveResume(stored[0].id);
     }
-
-    if (template && activeResumeId) {
-      setTemplate(activeResumeId, template);
-    }
-
-    initialized.current = true;
-  }, [
-    _hasHydrated,
-    searchParams,
-    resumes.length,
-    activeResumeId,
-    createResumeFromTemplate,
-    setActiveResume,
-    setTemplate,
-    router,
-  ]);
+  }, [_hasHydrated, searchParams, resumes.length, activeResumeId, setActiveResume, router]);
 
   const resume = getActiveResume();
 
@@ -125,7 +101,7 @@ export function BuilderClient() {
   if (!resume) {
     return (
       <div className="flex h-[calc(100vh-4rem)] items-center justify-center">
-        <p className="text-muted-foreground">Loading...</p>
+        <p className="text-muted-foreground">Loading editor...</p>
       </div>
     );
   }
@@ -210,13 +186,11 @@ export function BuilderClient() {
               Templates
             </Link>
           </Button>
-          <Button
-            size="sm"
-            variant="outline"
-            onClick={() => router.push("/builder/new")}
-          >
-            <Plus className="mr-1 h-3 w-3" />
-            New
+          <Button size="sm" variant="outline" asChild>
+            <Link href="/builder/new">
+              <Plus className="mr-1 h-3 w-3" />
+              New
+            </Link>
           </Button>
           <Button size="sm" variant="outline" onClick={handleImport}>
             <FileJson className="mr-1 h-3 w-3" />

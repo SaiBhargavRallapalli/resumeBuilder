@@ -46,10 +46,7 @@ export function Header() {
           ))}
         </nav>
 
-        <div className="hidden items-center gap-3 md:flex">
-          <Button variant="outline" asChild>
-            <Link href="/builder">My Resumes</Link>
-          </Button>
+        <div className="hidden md:block">
           <Button asChild>
             <Link href="/builder/new">Build Resume Free</Link>
           </Button>
