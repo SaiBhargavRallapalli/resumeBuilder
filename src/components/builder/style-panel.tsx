@@ -33,7 +33,7 @@ export function StylePanel({ resume }: StylePanelProps) {
     <div className="space-y-8">
       <div>
         <Label className="mb-3 block">Template ({TEMPLATES.length} available)</Label>
-        <div className="grid max-h-[420px] gap-3 overflow-y-auto pr-1 sm:grid-cols-2">
+        <div className="grid max-h-[560px] gap-3 overflow-y-auto pr-1 sm:grid-cols-2">
           {TEMPLATES.map((t) => (
             <TemplateCard
               key={t.id}
