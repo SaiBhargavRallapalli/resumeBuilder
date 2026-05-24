@@ -39,7 +39,6 @@ export function StylePanel({ resume }: StylePanelProps) {
               key={t.id}
               template={t}
               compact
-              showLink={false}
               selected={resume.templateId === t.id}
               onSelect={(id) => setTemplate(resume.id, id)}
             />

@@ -35,6 +35,8 @@ interface ResumePreviewProps {
   id?: string;
   className?: string;
   scale?: number;
+  /** Thumbnail mode: no min-height, no shadow, non-interactive */
+  variant?: "full" | "thumbnail";
 }
 
 export function ResumePreview({
@@ -42,6 +44,7 @@ export function ResumePreview({
   id = "resume-preview",
   className,
   scale = 1,
+  variant = "full",
 }: ResumePreviewProps) {
   const { sections, visibility, style, templateId } = resume;
   const layout = getTemplateLayout(templateId);
@@ -471,16 +474,25 @@ export function ResumePreview({
     }
   };
 
+  const isThumbnail = variant === "thumbnail";
+
   return (
     <div
-      id={id}
-      className="mx-auto w-full max-w-[210mm] shadow-lg"
+      id={isThumbnail ? undefined : id}
+      className={cn(
+        "mx-auto w-full max-w-[210mm]",
+        !isThumbnail && "shadow-lg",
+        isThumbnail && "pointer-events-none select-none",
+        className
+      )}
       style={{
         transform: scale !== 1 ? `scale(${scale})` : undefined,
         transformOrigin: "top center",
       }}
     >
-      <div className="min-h-[297mm] bg-white">{renderTemplate()}</div>
+      <div className={cn("bg-white", !isThumbnail && "min-h-[297mm]")}>
+        {renderTemplate()}
+      </div>
     </div>
   );
 }
