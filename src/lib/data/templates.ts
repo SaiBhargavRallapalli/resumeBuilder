@@ -2,10 +2,15 @@ import type { ResumeStyle, TemplateId, TemplateMeta } from "@/lib/types/resume";
 
 export type TemplateLayout =
   | "classic"
+  | "single-column"
   | "minimal"
   | "modern"
   | "professional"
+  | "ivy-league"
   | "double-column"
+  | "contemporary"
+  | "elegant"
+  | "creative"
   | "executive"
   | "compact"
   | "timeline"
@@ -59,7 +64,7 @@ export const TEMPLATES: TemplateDefinition[] = [
     atsScore: 97,
     supportsPhoto: false,
     columns: 1,
-    layout: "classic",
+    layout: "single-column",
     defaultStyle: { primaryColor: "#2563eb", fontFamily: "arial", fontSize: "medium" },
     recommendedFor: ["Students", "Interns", "Entry-level", "Freshers"],
     tags: ["ATS", "Student", "Graduate"],
@@ -73,7 +78,7 @@ export const TEMPLATES: TemplateDefinition[] = [
     atsScore: 96,
     supportsPhoto: false,
     columns: 1,
-    layout: "professional",
+    layout: "ivy-league",
     defaultStyle: { primaryColor: "#7f1d1d", fontFamily: "georgia", fontSize: "medium", margin: "wide" },
     recommendedFor: ["Consulting", "MBA", "Academia", "Banking"],
     tags: ["Professional", "Conservative"],
@@ -132,7 +137,7 @@ export const TEMPLATES: TemplateDefinition[] = [
     atsScore: 90,
     supportsPhoto: true,
     columns: 2,
-    layout: "double-column",
+    layout: "contemporary",
     defaultStyle: { primaryColor: "#059669", fontFamily: "inter", fontSize: "medium" },
     recommendedFor: ["Sales", "Marketing", "Customer success"],
     tags: ["Two column", "Bold"],
@@ -161,7 +166,7 @@ export const TEMPLATES: TemplateDefinition[] = [
     atsScore: 89,
     supportsPhoto: false,
     columns: 2,
-    layout: "double-column",
+    layout: "elegant",
     defaultStyle: { primaryColor: "#4c1d95", fontFamily: "georgia", fontSize: "medium", margin: "wide" },
     recommendedFor: ["Senior IC", "Directors", "Specialists"],
     tags: ["Elegant", "Two column"],
@@ -223,7 +228,7 @@ export const TEMPLATES: TemplateDefinition[] = [
     atsScore: 75,
     supportsPhoto: true,
     columns: 2,
-    layout: "double-column",
+    layout: "creative",
     defaultStyle: { primaryColor: "#7c3aed", fontFamily: "inter", fontSize: "medium" },
     recommendedFor: ["Design", "UX", "Creative", "Media"],
     tags: ["Creative", "Portfolio"],

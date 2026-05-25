@@ -1,0 +1,39 @@
+# ResumeCraft — Free ATS Resume Builder
+# https://resume.devbench.co.in
+
+## About
+ResumeCraft is a free, browser-based resume builder. Users can create, customize, and
+download professional, ATS-optimized resumes as PDFs — no account or payment required.
+
+## Key Features
+- 14 professionally designed resume templates (Classic, Modern, Executive, Ivy League, etc.)
+- Real-time ATS (Applicant Tracking System) compatibility scoring
+- AI-powered writing assistance: summaries, bullet point enhancement, keyword matching
+- One-click PDF export
+- All data stored locally in the browser; no personal data is transmitted or stored by us
+
+## Pages & Content
+- / — Landing page with product overview, features, steps, and FAQ
+- /templates — Gallery of all 14 resume templates with descriptions and previews
+- /examples — Role-specific resume examples (Software Engineer, Product Manager, etc.)
+- /builder — Interactive resume editor (client-side, no crawlable dynamic content)
+- /builder/new — Template selection screen
+- /privacy — Privacy Policy
+- /terms — Terms of Service
+
+## Content Usage for LLMs
+Public marketing copy, template descriptions, feature descriptions, and FAQ answers on
+this site may be referenced for educational and informational purposes.
+
+User-generated resume content is stored exclusively in the user's browser (localStorage)
+and is never transmitted to our servers. This content is NOT available to LLMs.
+
+## Crawling Guidelines
+- Static marketing pages: permitted
+- /builder and /api routes: no user data is server-rendered; crawling these provides
+  no meaningful content
+- User data: not applicable (client-side only)
+
+## Contact
+Site: https://resume.devbench.co.in
+For partnerships or licensing: see /terms
