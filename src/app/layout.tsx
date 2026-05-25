@@ -13,6 +13,9 @@ const inter = Inter({
 
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? "https://resume.devbench.co.in";
 
+const GTM_ID = "GTM-NBTV4W35";
+const GA4_IDS = ["G-V6MSPDCYDK", "G-DN9KYVJHQ2"];
+
 export const metadata: Metadata = {
   metadataBase: new URL(APP_URL),
   title: {
@@ -61,7 +64,6 @@ export const metadata: Metadata = {
     title: "ResumeCraft — Free ATS Resume Builder",
     description:
       "14 ATS-optimized templates, AI writing assistance, real-time ATS scoring. Build your resume in 5 minutes — completely free.",
-    creator: "@resumecraft",
   },
   alternates: {
     canonical: APP_URL,
@@ -79,19 +81,62 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
-        {/* Google AdSense */}
+        {/* ── Google Tag Manager (head) ─────────────────────────── */}
         <Script
-          async
+          id="gtm-head"
+          strategy="beforeInteractive"
+          dangerouslySetInnerHTML={{
+            __html: `(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','${GTM_ID}');`,
+          }}
+        />
+      </head>
+
+      <body className={`${inter.variable} font-sans`}>
+        {/* ── Google Tag Manager (noscript fallback) ───────────────── */}
+        <noscript>
+          <iframe
+            src={`https://www.googletagmanager.com/ns.html?id=${GTM_ID}`}
+            height="0"
+            width="0"
+            style={{ display: "none", visibility: "hidden" }}
+          />
+        </noscript>
+
+        <Header />
+        <main className="min-h-[calc(100vh-8rem)]">{children}</main>
+        <Footer />
+
+        {/* ── Vercel Analytics ─────────────────────────────────────── */}
+        <Analytics />
+
+        {/* ── Google Analytics 4 (gtag.js) ─────────────────────────── */}
+        <Script
+          src={`https://www.googletagmanager.com/gtag/js?id=${GA4_IDS[0]}`}
+          strategy="afterInteractive"
+        />
+        <Script
+          id="gtag-init"
+          strategy="afterInteractive"
+          dangerouslySetInnerHTML={{
+            __html: `
+window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', '${GA4_IDS[0]}');
+gtag('config', '${GA4_IDS[1]}');`,
+          }}
+        />
+
+        {/* ── Google AdSense ───────────────────────────────────────── */}
+        <Script
           src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6450653669194686"
           crossOrigin="anonymous"
           strategy="afterInteractive"
         />
-      </head>
-      <body className={`${inter.variable} font-sans`}>
-        <Header />
-        <main className="min-h-[calc(100vh-8rem)]">{children}</main>
-        <Footer />
-        <Analytics />
       </body>
     </html>
   );
